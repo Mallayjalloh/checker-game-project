@@ -1,2 +1,2 @@
 # checker-game-project
-Creating a Checker game based on Java and Swing 
+A game of Checkers created using Java and Java GUI: Swing.  
