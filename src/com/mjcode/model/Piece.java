@@ -31,6 +31,15 @@ public class Piece {
     }
 
     /**
+     * The canMoveTo method determines if a pieces can legally move to a specified tile
+     * @param tile The specified tile
+     * @return True if piece can legally move to that tile, else false
+     */
+    public boolean canMoveTo(Tile tile) {
+        return false;
+    }
+
+    /**
      * The getPlayer gets the player
      * @return The player that the piece belongs too
      */
