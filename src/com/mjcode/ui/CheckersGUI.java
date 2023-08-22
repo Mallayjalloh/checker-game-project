@@ -4,11 +4,6 @@ import com.mjcode.model.Piece;
 
 import java.awt.*;
 
-/*
-    + addPiece(color : Color, piece : Piece) : void
-    + movePiece(fromRow : int, fromCol : int, toRow : int, toCol : int)
-    + getTileSize() : int
- */
 public class CheckersGUI {
 
     // Declare fields

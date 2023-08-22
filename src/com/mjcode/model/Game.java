@@ -1,6 +1,5 @@
 package com.mjcode.model;
 
-import com.mjcode.logic.Move;
 import java.util.ArrayList;
 
 public class Game {

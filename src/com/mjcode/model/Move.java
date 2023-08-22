@@ -1,4 +1,4 @@
-package com.mjcode.logic;
+package com.mjcode.model;
 
 import com.mjcode.model.Piece;
 import com.mjcode.model.Tile;
