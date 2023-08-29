@@ -40,8 +40,8 @@ public abstract class Player {
     /**
      * Starts the game of checkers
      */
-    public void getGame() {
-
+    public Game getGame() {
+        return this.game;
     }
 
     /**
@@ -64,19 +64,18 @@ public abstract class Player {
      * The getNumPieces method gets the number of pieces the player currently has remaining
      * @return The number of pieces this player has remaining
      */
-    public Piece[] getNumPieces() {
-        return this.piece;
+    public int getNumPieces() {
+        return 0;
     }
-    
+
     /**
      * The removePiece method removes the provided piece from the player's list of pieces
      * @param remove The provided piece from the player's list
-     * @return The removed piece
      *
      * ?? Not sure if it returns something or if it should be a void method ??
      */
-    public Piece removePiece(Piece remove) {
-        return null;
+    public void removePiece(Piece remove) {
+
     }
 
     /**
