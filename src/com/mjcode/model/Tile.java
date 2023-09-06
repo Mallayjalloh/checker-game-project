@@ -6,6 +6,7 @@ public class Tile {
     private int column;
     private int row;
     private Piece piece;
+    private boolean occupied;
 
     /**
      * Constructor accepts two arguments and initializes fields
@@ -19,11 +20,18 @@ public class Tile {
     }
 
     /**
-     * The setOccupant method sets the occupant of this tile
+     * The setOccupant method sets the occupant of this tile to the piece specified
      * @param newOccupant The piece that's specified
      */
     public void setOccupant(Piece newOccupant) {
-        this.piece = newOccupant;
+        // Set the piece to occupy that tile, else assign null
+        if (newOccupant != null) {
+            this.piece = newOccupant;
+            this.occupied = true;
+        } else {
+            this.piece = null;
+            this.occupied = false;
+        }
     }
 
     /**
@@ -31,7 +39,10 @@ public class Tile {
      * @return The piece that is occupying this tile or null if tile has no occupant
      */
     public Piece getOccupant() {
-        return this.piece;
+        if (isOccupied()) {
+            return this.piece;
+        }
+        return null;
     }
 
     /**
@@ -39,6 +50,6 @@ public class Tile {
      * @return True if tile has a piece, else return false
      */
     public boolean isOccupied() {
-        return false;
+        return this.occupied;
     }
 }
