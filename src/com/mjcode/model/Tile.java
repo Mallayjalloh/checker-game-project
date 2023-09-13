@@ -19,11 +19,16 @@ public class Tile {
     }
 
     /**
-     * The setOccupant method sets the occupant of this tile
+     * The setOccupant method sets the occupant of this tile to the piece specified
      * @param newOccupant The piece that's specified
      */
     public void setOccupant(Piece newOccupant) {
-        this.piece = newOccupant;
+        // Set the piece to occupy that tile, else assign null
+        if (newOccupant != null) {
+            this.piece = newOccupant;
+        } else {
+            this.piece = null;
+        }
     }
 
     /**
@@ -31,7 +36,7 @@ public class Tile {
      * @return The piece that is occupying this tile or null if tile has no occupant
      */
     public Piece getOccupant() {
-        return this.piece;
+        return isOccupied() ? this.piece : null;
     }
 
     /**
@@ -39,6 +44,6 @@ public class Tile {
      * @return True if tile has a piece, else return false
      */
     public boolean isOccupied() {
-        return false;
+        return this.piece != null;
     }
 }
