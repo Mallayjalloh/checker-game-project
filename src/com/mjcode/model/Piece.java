@@ -110,5 +110,4 @@ public class Piece {
         this.isKing = true;
     }
 
-
 }
