@@ -46,4 +46,20 @@ public class Tile {
     public boolean isOccupied() {
         return this.piece != null;
     }
+
+    /**
+     * The getColumn method gets a column value
+     * @return The value in the column field
+     */
+    public int getColumn() {
+        return this.column;
+    }
+
+    /**
+     * The getRow method a row field
+     * @return The value in the row field
+     */
+    public int getRow() {
+        return this.row;
+    }
 }
