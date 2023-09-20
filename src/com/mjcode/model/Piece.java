@@ -9,8 +9,8 @@ public class Piece {
     private boolean isKing;
 
     // Test fields
-    private int row;
-    private int col;
+    private int currentRow;
+    private int currentCol;
 
     /**
      * Constructor accepts three arguments and initializes the fields
@@ -18,15 +18,15 @@ public class Piece {
      * @param tile The tile field
      * @param direction The direction field
      */
-    public Piece(Player player, Tile tile, int direction, int row, int col) {
+    public Piece(Player player, Tile tile, int direction, int currentRow, int currentCol) {
         this.player = player;
         this.tile = tile;
         this.direction = direction;
         isKing = false;
 
         // Test fields
-        this.row = row;
-        this.col = col;
+        this.currentRow = currentRow;
+        this.currentCol = currentCol;
     }
 
     /**
@@ -37,53 +37,61 @@ public class Piece {
     public boolean canCapture(Piece other) {
         return other.getPlayer() != this.player;
     }
-    /*
+
     /**
      * The canMoveTo method determines if a pieces can legally move to a specified tile
-     * @param tile The specified tile
+     * @param tile The specified tile the piece wants to move to
      * @return True if piece can legally move to that tile, else false
      */
-    /*public boolean canMoveTo(Tile tile) {
-        // Check if tile is occupied by the opponent's piece
+    public boolean canMoveTo(Tile tile) {
+        // Local variables to store the squares that lies between the current tile and the target tile
+        int jumpedRow;
+        int jumpedCol;
+
+        // Calculate the row and column differences between the current tile and target tile
+        int rowDiff = tile.getRow() - this.currentRow;
+        int colDiff = tile.getColumn() - this.currentCol;
+
+        // Check if tile is occupied by another piece
         if (tile.isOccupied()) {
             return false;
         }
+
         // If not a King
         if (!isKinged()) {
-            // If not a King
-            return true;
-        } else {
-            return false;
-
-        }
-    }*/
-    // Test method
-    public boolean canMoveTo(int newRow, int newCol) {
-        // Check if tile is occupied by the opponent's piece
-        if (tile.isOccupied()) {
-            return false;
-        }
-
-        // Calculate the direction of the piece based on the opponent's side
-        this.direction = (newRow > row) ? 1 : -1;
-
-        /*  If the piece is not Kinged, it can legally move one space diagonally
-            towards the opponent's side
-            */
-        if (!isKing) {
-            // Check if the move is one space diagonally in the specified direction
-            if (Math.abs(newRow - this.row) == 1 && newCol - this.col == 1) {
+            // If not a King, check if the move is one space diagonally in the specified direction
+            if (rowDiff == this.direction &&
+                    Math.abs(colDiff) == this.direction) {
                 return true;
-            } else {
-                return false;
+
+            } else if (rowDiff == 2 && Math.abs(colDiff) == 2){
+                // Calculate the position of the jumped tile
+                jumpedRow = (this.currentRow + rowDiff) / 2;
+                jumpedCol = (this.currentCol + colDiff) / 2;
+
+                // Check if there is an opponent's piece on the jumped tile
+                if (tile.isOccupied() && tile.getOccupant().getPlayer() != this.player) {
+                    return true;
+                }
             }
+            return false;
+
         } else {
             // Piece is a King that can move diagonally in any direction
-            if (Math.abs(newRow - this.row) == 1 && Math.abs(newCol - this.col) == 1) {
+            if (Math.abs(rowDiff) == 1 && Math.abs(colDiff) == 1) {
                 return true;
-            } else {
-                return false;
+            } else if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 2){
+                // Calculate the position of the jumped tile
+                jumpedRow = (this.currentRow + rowDiff) / 2;
+                jumpedCol = (this.currentCol + colDiff) / 2;
+
+                // Check if there is an opponent's piece on the jumped tile
+                if (tile.isOccupied() && tile.getOccupant().getPlayer() != this.player) {
+                    return true;
+                }
             }
+
+            return false;
         }
     }
 
