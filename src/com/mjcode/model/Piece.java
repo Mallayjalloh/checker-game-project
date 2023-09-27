@@ -4,29 +4,23 @@ public class Piece {
 
     // Declare fields
     private Player player;
-    private Tile tile;
+    private Tile currentTile;
     private int direction;
     private boolean isKing;
-
-    // Test fields
-    private int currentRow;
-    private int currentCol;
 
     /**
      * Constructor accepts three arguments and initializes the fields
      * @param player The player field
-     * @param tile The tile field
+     * @param currentTile The tile field
      * @param direction The direction field
      */
-    public Piece(Player player, Tile tile, int direction, int currentRow, int currentCol) {
+    // Change the tile object to differentiate from the object in canMoveTo().
+    // Change it to....Tile currentTile
+    public Piece(Player player, Tile currentTile, int direction) {
         this.player = player;
-        this.tile = tile;
+        this.currentTile = currentTile;
         this.direction = direction;
         isKing = false;
-
-        // Test fields
-        this.currentRow = currentRow;
-        this.currentCol = currentCol;
     }
 
     /**
@@ -40,55 +34,70 @@ public class Piece {
 
     /**
      * The canMoveTo method determines if a pieces can legally move to a specified tile
-     * @param tile The specified tile the piece wants to move to
+     * @param targetTile The specified tile the piece wants to move to
      * @return True if piece can legally move to that tile, else false
      */
-    public boolean canMoveTo(Tile tile) {
+    public boolean canMoveTo(Tile targetTile,Tile[][] board) {
+
         // Local variables to store the squares that lies between the current tile and the target tile
         int jumpedRow;
         int jumpedCol;
 
-        // Calculate the row and column differences between the current tile and target tile
-        int rowDiff = tile.getRow() - this.currentRow;
-        int colDiff = tile.getColumn() - this.currentCol;
+        // Calculate the row and column differences between the target tile and current tile
+        int rowDiff = targetTile.getRow() - this.currentTile.getRow();
+        int colDiff = targetTile.getColumn() - this.currentTile.getColumn();
 
         // Check if tile is occupied by another piece
-        if (tile.isOccupied()) {
+        if (targetTile.isOccupied()) {
             return false;
         }
 
         // If not a King
         if (!isKinged()) {
+
             // If not a King, check if the move is one space diagonally in the specified direction
             if (rowDiff == this.direction &&
-                    Math.abs(colDiff) == this.direction) {
+                    Math.abs(colDiff) == 1) {
                 return true;
+            } else if (rowDiff == this.direction * 2 && Math.abs(colDiff) == 2) {
 
-            } else if (rowDiff == 2 && Math.abs(colDiff) == 2){
-                // Calculate the position of the jumped tile
-                jumpedRow = (this.currentRow + rowDiff) / 2;
-                jumpedCol = (this.currentCol + colDiff) / 2;
+                // Check if there's a jump move and calculate the position of the jumped tile
+                jumpedRow = this.currentTile.getRow() + (rowDiff / 2);
+                jumpedCol = this.currentTile.getColumn() + (colDiff / 2);
+
+                // Removed the captured opponent's piece from the board
+                board[jumpedRow][jumpedCol] = null;
+
+                // Update the board with the new position of the moving piece
+                board[targetTile.getRow()][targetTile.getColumn()] =
+                        board[currentTile.getRow()][currentTile.getColumn()];
 
                 // Check if there is an opponent's piece on the jumped tile
-                if (tile.isOccupied() && tile.getOccupant().getPlayer() != this.player) {
-                    return true;
-                }
+                return targetTile.isOccupied() && canCapture(targetTile.getOccupant());
+
             }
             return false;
 
         } else {
+
             // Piece is a King that can move diagonally in any direction
             if (Math.abs(rowDiff) == 1 && Math.abs(colDiff) == 1) {
                 return true;
             } else if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 2){
+
                 // Calculate the position of the jumped tile
-                jumpedRow = (this.currentRow + rowDiff) / 2;
-                jumpedCol = (this.currentCol + colDiff) / 2;
+                jumpedRow = this.currentTile.getRow() + (rowDiff / 2);
+                jumpedCol = this.currentTile.getColumn() + (colDiff / 2);
+
+                // Removed the captured opponent's piece from the board
+                board[jumpedRow][jumpedCol] = null;
+
+                // Update the board with the new position of the moving piece
+                board[targetTile.getRow()][targetTile.getColumn()] =
+                        board[currentTile.getRow()][currentTile.getColumn()];
 
                 // Check if there is an opponent's piece on the jumped tile
-                if (tile.isOccupied() && tile.getOccupant().getPlayer() != this.player) {
-                    return true;
-                }
+                return targetTile.isOccupied() && canCapture(targetTile.getOccupant());
             }
 
             return false;
