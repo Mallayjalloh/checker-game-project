@@ -59,23 +59,20 @@ public class Piece {
             if (rowDiff == this.direction &&
                     Math.abs(colDiff) == 1) {
                 return true;
+
             } else if (rowDiff == this.direction * 2 && Math.abs(colDiff) == 2) {
 
                 // Check if there's a jump move and calculate the position of the jumped tile
                 jumpedRow = this.currentTile.getRow() + (rowDiff / 2);
                 jumpedCol = this.currentTile.getColumn() + (colDiff / 2);
 
-                // Removed the captured opponent's piece from the board
-                board[jumpedRow][jumpedCol] = null;
-
-                // Update the board with the new position of the moving piece
-                board[targetTile.getRow()][targetTile.getColumn()] =
-                        board[currentTile.getRow()][currentTile.getColumn()];
+                // Get the current jumped tile from the board
+                Tile jumpTile = board[jumpedRow][jumpedCol];
 
                 // Check if there is an opponent's piece on the jumped tile
-                return targetTile.isOccupied() && canCapture(targetTile.getOccupant());
-
+                return jumpTile.isOccupied() && canCapture(jumpTile.getOccupant());
             }
+
             return false;
 
         } else {
@@ -89,15 +86,11 @@ public class Piece {
                 jumpedRow = this.currentTile.getRow() + (rowDiff / 2);
                 jumpedCol = this.currentTile.getColumn() + (colDiff / 2);
 
-                // Removed the captured opponent's piece from the board
-                board[jumpedRow][jumpedCol] = null;
-
-                // Update the board with the new position of the moving piece
-                board[targetTile.getRow()][targetTile.getColumn()] =
-                        board[currentTile.getRow()][currentTile.getColumn()];
+                // Get the current jumped tile from board
+                Tile jumpTile = board[jumpedRow][jumpedCol];
 
                 // Check if there is an opponent's piece on the jumped tile
-                return targetTile.isOccupied() && canCapture(targetTile.getOccupant());
+                return jumpTile.isOccupied() && canCapture(jumpTile.getOccupant());
             }
 
             return false;
