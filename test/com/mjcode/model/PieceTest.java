@@ -20,9 +20,9 @@ class PieceTest {
 
         board = new Tile[8][8];
 
-        whiteCurrentTile = new Tile(6,4);
+        whiteCurrentTile = new Tile(2,5);
 
-        blackCurrentTile = new Tile(2,4);
+        blackCurrentTile = new Tile(6,5);
 
         // Since Player is an abstract class, we are creating a mock instance for player 1 for testing
         player1 = new Player() {
@@ -45,7 +45,7 @@ class PieceTest {
     void testCanCapture() {
 
         Piece whitePiece = new Piece(player1, whiteCurrentTile, 1);
-        Piece blackPiece = new Piece(player2, blackCurrentTile, 1);
+        Piece blackPiece = new Piece(player2, blackCurrentTile, -1);
 
         // Testing when pieces belong to different players
         assertTrue(whitePiece.canCapture(blackPiece));
@@ -56,34 +56,116 @@ class PieceTest {
 
     @Test
     void testCanMoveToOccupiedTile() {
-        Tile targetTile = new Tile(5,5);
+        Tile targetTile = new Tile(3,4);
         Piece whitePiece = new Piece(player1, whiteCurrentTile, 1);
 
-        assertFalse(targetTile.isOccupied());
+        // Add piece to the target tile
+        targetTile.setOccupant(whitePiece);
+
+        // Test when the target tile is occupied by a checkers piece
+        assertTrue(targetTile.isOccupied());
         assertFalse(whitePiece.canMoveTo(targetTile, board));
     }
 
     @Test
-    @Disabled
     void testCanMoveToLegalMove() {
 
-        Tile targetTile = new Tile(5,5);
+        Tile targetTile = new Tile(3,6);
         Piece whitePiece = new Piece(player1, whiteCurrentTile, 1);
-        targetTile.isOccupied();
 
         assertTrue(whitePiece.canMoveTo(targetTile, board));
-
     }
     @Test
     void testCanMoveToIllegalMove() {
 
+        Tile backwardTile = new Tile(1,6);
+        Piece whitePiece = new Piece(player1, whiteCurrentTile, 1);
+
+        assertFalse(whitePiece.canMoveTo(backwardTile, board));
+
+    }
+    @Test
+    void testPawnCanMoveToCanJump() {
+
+        Tile targetTile = new Tile(4,7);
+        Tile blackTile = new Tile(4, 5);
+
+        Piece whitePiece = new Piece(player1, whiteCurrentTile,1);
+        Piece blackPiece = new Piece(player2, blackTile, -1);
+
+        int rowDiff = targetTile.getRow() - whiteCurrentTile.getRow();
+        int colDiff = targetTile.getColumn() - whiteCurrentTile.getColumn();
+
+        // Get the jumped row and column
+        int jumpedRow = whiteCurrentTile.getRow() + (rowDiff / 2);
+        int jumpedCol = whiteCurrentTile.getColumn() + (colDiff / 2);
+
+        Tile jumpedTile = new Tile(3,6);
+
+        jumpedTile.setOccupant(blackPiece);
+        assertTrue(jumpedTile.isOccupied());
+
+        board[jumpedRow][jumpedCol] = jumpedTile;
+
+        // test white pawn can make the jump
+        assertTrue(whitePiece.canMoveTo(targetTile, board));
+
+    }
+    @Test
+    void testKingCanMoveToCanJump() {
+
+        // King Piece moving forward
+        Tile forwardTile = new Tile(6, 5);
+        Tile whiteTile = new Tile(4, 3);
+        Tile blackTile = new Tile(4, 5);
+
+        Piece kingPiece;
+
+        Piece whitePiece = new Piece(player1, whiteTile,1);
+        Piece blackPiece = new Piece(player2, blackTile,-1);
+
+        int rowDiff = forwardTile.getRow() - whiteTile.getRow();
+        int colDiff = forwardTile.getColumn() - whiteTile.getColumn();
+
+        whitePiece.king();
+        kingPiece = whitePiece;
+        assertTrue(kingPiece.isKinged());
+
+        // Get the jumped row and column
+        int jumpedRow = whiteTile.getRow() + (rowDiff / 2);
+        int jumpedCol = whiteTile.getColumn() + (colDiff / 2);
+
+        Tile jumpedTile = new Tile(5, 4);
+        jumpedTile.setOccupant(blackPiece);
+        assertTrue(jumpedTile.isOccupied());
+
+        board[jumpedRow][jumpedCol] = jumpedTile;
+        assertTrue(kingPiece.canMoveTo(forwardTile, board));
+    }
+    @Test
+    void testKingCanMoveToAnyDirection() {
+
+        Tile forwardTile = new Tile(3,6);
+        Tile backwardTile = new Tile(1,6);
+        Piece whitePiece = new Piece(player1, whiteCurrentTile, 1);
+
+        // King the white piece
+        whitePiece.king();
+        // test that white piece is now a king
+        assertTrue(whitePiece.isKinged());
+
+        // Test the king piece can move forward
+        assertTrue(whitePiece.canMoveTo(forwardTile, board));
+
+        // Test the king piece can move backward
+        assertTrue(whitePiece.canMoveTo(backwardTile, board));
     }
 
     @Test
     void testGetPlayer() {
 
         Piece whitePiece = new Piece(player1, whiteCurrentTile, 1);
-        Piece blackPiece = new Piece(player2, blackCurrentTile, 1);
+        Piece blackPiece = new Piece(player2, blackCurrentTile, -1);
 
         // Test if the piece belongs to the same player
         assertEquals(player1, whitePiece.getPlayer());
