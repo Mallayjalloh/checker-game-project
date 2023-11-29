@@ -43,14 +43,14 @@ class PlayerTest {
         Piece whitePiece = player.addPiece(initialPosition);
 
         // Retrieve the player's pieces
-        pieceList = player.getPiece();
+        pieceList = player.getPieces();
 
         // Verify if the added piece exist in the player's piece list
         assertTrue(pieceList.contains(whitePiece));
     }
 
     @Test
-    void TestGetPiece() {
+    void TestGetPieces() {
         // Create a 2nd tile for the 2nd white piece
         Tile secondPosition = new Tile(3, 2);
 
@@ -60,7 +60,7 @@ class PlayerTest {
         Piece whitePiece2 = player.addPiece(secondPosition);
 
         // Retrieve the players pieces
-        pieceList = player.getPiece();
+        pieceList = player.getPieces();
 
         // Verify if there are two pieces in the player's list
         assertEquals(2, pieceList.size());
@@ -87,12 +87,14 @@ class PlayerTest {
         // Add a piece to the player's list of pieces
         Piece whitePiece = player.addPiece(initialPosition);
         // Retrieve the player's pieces
-        pieceList = player.getPiece();
+        pieceList = player.getPieces();
         // Check if the added piece exist in the player's list
         assertTrue(pieceList.contains(whitePiece));
 
         // Remove the piece from the player's list
         player.removePiece(whitePiece);
+        // Retrieve the player's pieces
+        pieceList = player.getPieces();
         // Verify if the piece has been removed from the player's list
         assertFalse(pieceList.contains(whitePiece));
     }
@@ -131,9 +133,12 @@ class PlayerTest {
 
     @Test
     void TestKing() {
+        // Create a 2nd tile for the 2nd white piece
+        Tile secondPosition = new Tile(3, 2);
+
         // Create a piece
         Piece kingPiece = new Piece(player, initialPosition, 1);
-        Piece whitePiece = new Piece(player, initialPosition, 1);
+        Piece whitePiece = new Piece(player, secondPosition, 1);
 
         // King the piece
         player.king(kingPiece);
