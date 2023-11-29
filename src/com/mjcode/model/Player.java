@@ -1,14 +1,15 @@
 package com.mjcode.model;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public abstract class Player {
 
     // Declare fields
     private Game game;
-    private Piece[] piece;
     private Color color;
     private int direction;
+    private ArrayList<Piece> pieceList;
 
     /**
      * No-args constructor initializes the fields appropriately
@@ -17,6 +18,7 @@ public abstract class Player {
         this.game = null;
         this.color = null;
         this.direction = 0;
+        this.pieceList = new ArrayList<>();
     }
 
     /**
@@ -26,38 +28,38 @@ public abstract class Player {
      * @return The created piece
      */
     public Piece addPiece(Tile initialPosition) {
-        return null;
+        // Create a new piece
+        Piece newPiece = new Piece(this, initialPosition, direction);
+        // Add piece to the players list of pieces and return it
+        pieceList.add(newPiece);
+        return newPiece;
     }
 
     /**
      * The executeMove method reflects the move specified
      * @param move The move to be executed
      */
-    public void executeMove(Move move) {
-
-    }
+    public abstract void executeMove(Move move);
 
     /**
      * Starts the game of checkers
      */
-    public Game getGame() {
-        return this.game;
-    }
+    public abstract Game getGame();
 
     /**
      * The setGame method sets the game of checkers
      * @param game The game field
      */
     public void setGame(Game game) {
-
+        this.game = game;
     }
 
     /**
      * The getPiece method gets all the player's remaining pieces
      * @return An array of pieces
      */
-    public Piece[] getPiece() {
-        return this.piece;
+    public ArrayList<Piece> getPiece() {
+        return pieceList;
     }
 
     /**
@@ -65,7 +67,7 @@ public abstract class Player {
      * @return The number of pieces this player has remaining
      */
     public int getNumPieces() {
-        return 0;
+        return pieceList.size();
     }
 
     /**
@@ -75,7 +77,7 @@ public abstract class Player {
      * ?? Not sure if it returns something or if it should be a void method ??
      */
     public void removePiece(Piece remove) {
-
+        pieceList.remove(remove);
     }
 
     /**
@@ -106,7 +108,7 @@ public abstract class Player {
      * @param piece The piece to be set as king
      */
     public void king(Piece piece) {
-
+        piece.king();
     }
 
 }
