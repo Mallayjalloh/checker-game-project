@@ -42,7 +42,7 @@ public class Game {
         }
 
         // If game currently has one player
-         else if (player1 != null && player2 == null) {
+        else if (player1 != null && player2 == null) {
             player2 = newPlayer;
             player2.setColor(Color.BLACK);
             player2.setDirection(-1);
@@ -59,7 +59,7 @@ public class Game {
     }
 
     /**
-     * The getTile method returns the Tile on the board at the specified row and column./font>
+     * The getTile method returns the Tile on the board at the specified row and column.
      * @param row On the board
      * @param column on the board
      * @return The tile
@@ -72,9 +72,9 @@ public class Game {
      * The executeMove method updates the Pieces on the Board to reflect the Move specified, and informs
      * both Players that the Move has been executed via their respective executeMove methods. If the Move
      * results in a capture, removes the captured Piece from the board and from the appropriate
-     * Player's list of Pieces. If the Move results in a Piece occupying it's opponent Player's
+     * Player's list of Pieces. If the Move results in a Piece occupying its opponent Player's
      * first row*, the Piece is kinged. Finally, adds the specified Move to the history of Moves made thus far.
-     * @param move
+     * @param move The move
      */
     protected void executeMove(Move move) {
         // Declare and initialize the objects
@@ -87,23 +87,31 @@ public class Game {
         int direction = movedPiece.getPlayer().getDirection();
         int row = toTile.getRow();
 
-        // Update Pieces on the board to reflect the move
-        fromTile.setOccupant(null);
-        toTile.setOccupant(movedPiece);
-
-        // The result if the move is a captured
-            // Remove the captured Piece from the board
-            // Remove the piece from the board
-
-
         // Check if pawn has reached opponent's side to be Kinged
         if ((direction == 1 && row == 7) || (direction == -1 && row == 0)) {
             movedPiece.king();
         }
 
+        // Update the board to reflect the move and set the moved piece to the destination tile
+        fromTile.setOccupant(null);
+        toTile.setOccupant(movedPiece);
+
+        // The result if the move is a captured
+        if (capturedPiece != null) {
+            // Update Pieces on the board to reflect the move and remove captured piece directly from the board
+            fromTile.setOccupant(null);
+            //board[fromTile.getRow()][fromTile.getColumn()].setOccupant(null);
+
+            // Remove the captured piece from the Player's list of pieces
+            capturedPiece.getPlayer().removePiece(capturedPiece);
+        }
+
         // Add piece to move list
+        moves.add(move);
 
         // Inform both players about the move being executed
+        player1.executeMove(move);
+        player2.executeMove(move);
     }
 
     /**
@@ -121,13 +129,13 @@ public class Game {
 
         // Initialize the starting and ending tiles
         Tile initialTile = move.getFromTile();
-        Tile destinationTile = move.getFromTile();
+        Tile destinationTile = move.getToTile();
 
         // Check if the Tiles specified is within border bound
         if (initialTile.getRow() < 0 || initialTile.getRow() >= boarderSize ||
-                initialTile.getColumn() < 0 && initialTile.getColumn() >= boarderSize ||
-                destinationTile.getRow() < 0 && destinationTile.getRow() >= boarderSize ||
-                destinationTile.getColumn() < 0 && destinationTile.getColumn() >= boarderSize) {
+                initialTile.getColumn() < 0 || initialTile.getColumn() >= boarderSize ||
+                destinationTile.getRow() < 0 || destinationTile.getRow() >= boarderSize ||
+                destinationTile.getColumn() < 0 || destinationTile.getColumn() >= boarderSize) {
             return false;
         }
 
@@ -146,7 +154,6 @@ public class Game {
 
         // Check if the piece can legally move to the destination tile
         return movedPiece.canMoveTo(destinationTile, board);
-
     }
 
     /**
@@ -157,13 +164,11 @@ public class Game {
      */
     protected void play() {
 
-        // Start the game with player1
-        currentPlayer = player1;
-
         // The game will loop until the end-game state has been reached
         while (!endGame()) {
 
-            // Get current player should already be set to player1 in startGame method
+            // Current player will be initialized in the startGame method
+            // Create a Move object
             Move move = null;
 
             // Ask the current player for a move until a legal move is given
@@ -175,6 +180,7 @@ public class Game {
 
                 // Check if move is legal
                 isLegalMove = isLegalMove(move);
+
             }
 
             // Execute legal move
@@ -183,7 +189,6 @@ public class Game {
             // Switch turn to other player
             switchTurns();
         }
-
     }
 
     /**
@@ -196,24 +201,33 @@ public class Game {
         // Reset the board by removing any existing pieces
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                board[i][j] = null;
+                // Don't set Tile to null, set occupant of Tile to null
+                board[i][j] = new Tile(i, j);
+                board[i][j].setOccupant(null);
             }
         }
 
-        // Add 12 pieces to player1
+        // Add 12 pieces to player1 in the positive direction
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 1) {
-                    player1.addPiece(getTile(i, j));
+                    // Store new piece from Player.addPiece method and set as occupant of Tile at (i, j)
+                    Piece piece = player1.addPiece(getTile(i, j));
+                    board[i][j] = new Tile(i, j);
+                    board[i][j].setOccupant(piece);
+
                 }
             }
         }
 
-        // Add 12 pieces to player 2
+        // Add 12 pieces to player 2 in the negative direction
         for (int i = 5; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 1) {
-                    player2.addPiece(getTile(i, j));
+                    // Repeat the implementation as the first player
+                    Piece piece = player2.addPiece(getTile(i, j));
+                    board[i][j] = new Tile(i, j);
+                    board[i][j].setOccupant(piece);
                 }
             }
         }
@@ -236,11 +250,19 @@ public class Game {
     protected void switchTurns() {
 
         // If currently player is player1, switch to player2
-        if (currentPlayer.equals(player1)) {
+        if (currentPlayer == player1) {
             currentPlayer = player2;
         } else {
             currentPlayer = player1;
         }
     }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+    public void setCurrentPlayer(Player player) {
+        currentPlayer = player;
+    }
+
 
 }
