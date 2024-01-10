@@ -1,5 +1,8 @@
 package com.mjcode.model;
 
+import jdk.swing.interop.DropTargetContextWrapper;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -10,8 +13,9 @@ public class Game {
     private Player player2;
     private Player currentPlayer;
     private ArrayList<Move> moves;
-    private boolean gameStart;
+    private boolean gameStarted;
     private Tile[][] board;
+    private Tile currentTile;
 
 
     /**
@@ -21,9 +25,17 @@ public class Game {
         player1 = null;
         player2 = null;
         currentPlayer = null;
-        gameStart = false;
+        currentTile = null;
+        gameStarted = false;
         moves = new ArrayList<>();
         board = new Tile[8][8];
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                board[i][j] = new Tile(i, j);
+            }
+        }
+
     }
 
     /**
@@ -46,7 +58,7 @@ public class Game {
             player2 = newPlayer;
             player2.setColor(Color.BLACK);
             player2.setDirection(-1);
-            gameStart = true;
+            gameStarted = true;
         }
     }
 
@@ -80,8 +92,11 @@ public class Game {
         // Declare and initialize the objects
         Tile fromTile = move.getFromTile();
         Tile toTile = move.getToTile();
+        Tile jumpedTile = jumpedTile(toTile, board);
         Piece movedPiece = move.getMovedPiece();
         Piece capturedPiece = move.getCapturedPiece();
+        //Piece capturedPiece = jumpedTile.getOccupant();
+
 
         // Declare variable for direction of the player and the destination tile
         int direction = movedPiece.getPlayer().getDirection();
@@ -99,8 +114,7 @@ public class Game {
         // The result if the move is a captured
         if (capturedPiece != null) {
             // Update Pieces on the board to reflect the move and remove captured piece directly from the board
-            fromTile.setOccupant(null);
-            //board[fromTile.getRow()][fromTile.getColumn()].setOccupant(null);
+            jumpedTile.setOccupant(null);
 
             // Remove the captured piece from the Player's list of pieces
             capturedPiece.getPlayer().removePiece(capturedPiece);
@@ -202,7 +216,6 @@ public class Game {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 // Don't set Tile to null, set occupant of Tile to null
-                board[i][j] = new Tile(i, j);
                 board[i][j].setOccupant(null);
             }
         }
@@ -212,9 +225,8 @@ public class Game {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 1) {
                     // Store new piece from Player.addPiece method and set as occupant of Tile at (i, j)
-                    Piece piece = player1.addPiece(getTile(i, j));
-                    board[i][j] = new Tile(i, j);
-                    board[i][j].setOccupant(piece);
+                    Piece whitePiece = player1.addPiece(getTile(i, j));
+                    board[i][j].setOccupant(whitePiece);
 
                 }
             }
@@ -225,9 +237,8 @@ public class Game {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 1) {
                     // Repeat the implementation as the first player
-                    Piece piece = player2.addPiece(getTile(i, j));
-                    board[i][j] = new Tile(i, j);
-                    board[i][j].setOccupant(piece);
+                    Piece blackPiece = player2.addPiece(getTile(i, j));
+                    board[i][j].setOccupant(blackPiece);
                 }
             }
         }
@@ -240,6 +251,9 @@ public class Game {
 
             // Initialize the game
             play();
+
+            // Initialize gameStarted to true
+            gameStarted = true;
         }
 
     }
@@ -257,6 +271,64 @@ public class Game {
         }
     }
 
+    // Create a new method called captured piece for capturing a piece on a jumped tile
+    /**
+     * The jumpedTile method returns the jumped tile of a captured piece
+     * @param //targetTile Specified tile piece wants to move to
+     * @return The jumped tile
+     */
+    public Tile jumpedTile(Tile targetTile, Tile[][] board) {
+        // Local variables store the jumped row, jumped column and jumpTile
+        int jumpedRow;
+        int jumpedCol;
+        Tile jumpTile = null;
+
+        // Calculate the row and column differences between the target tile and current tile
+        int rowDiff = targetTile.getRow() - this.currentTile.getRow();
+        int colDiff = targetTile.getColumn() - this.currentTile.getColumn();
+
+        if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 2){
+
+            // Calculate the position of the jumped tile
+            jumpedRow = this.currentTile.getRow() + (rowDiff / 2);
+            jumpedCol = this.currentTile.getColumn() + (colDiff / 2);
+
+            // Get the jumped tile from board
+            jumpTile = getTile(jumpedRow, jumpedCol);
+        }
+
+        // Return the jumped tile
+        return jumpTile;
+    }
+
+/*    public Tile jumpedTile(Move move) {
+        // Local variables to store the squares that lies between the current tile, target tile and jumpTile
+        int jumpedRow;
+        int jumpedCol;
+        Tile jumpTile = null;
+
+        // Calculate the row and column differences between the target tile and current tile
+        int rowDiff = move.getToTile().getRow() - move.fromTile.getRow();
+        int colDiff = move.getToTile().getColumn() - move.fromTile.getColumn();
+
+        if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 2){
+
+            // Calculate the position of the jumped tile
+            jumpedRow = move.getFromTile().getRow() + (rowDiff / 2);
+            jumpedCol = move.getFromTile().getColumn() + (colDiff / 2);
+
+            // Get the current jumped tile from board
+            jumpTile = getTile(jumpedRow, jumpedCol);
+            //jumpTile = board[jumpedRow][jumpedCol];
+        }
+
+        // Return the jumped tile
+        return jumpTile;
+    }*/
+    public void setCurrentTile(Tile tile) {
+        currentTile = tile;
+    }
+
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
@@ -264,5 +336,8 @@ public class Game {
         currentPlayer = player;
     }
 
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
 
 }

@@ -12,6 +12,7 @@ public final class Move {
         this.fromTile = fromTile;
         this.toTile = toTile;
         this.movedPiece = fromTile.getOccupant();
+        //this.capturedPiece = toTile.isOccupied() ? toTile.getOccupant() : null;
         this.capturedPiece = null;
     }
 
