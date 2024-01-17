@@ -1,12 +1,6 @@
 package com.mjcode.model;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,7 +13,6 @@ class GameTest {
     Game game;
     Player player1;
     Player player2;
-    ArrayList<Move> moves;
     Color white;
     Color black;
     Tile positiveFromTile;
@@ -29,7 +22,7 @@ class GameTest {
 
     @BeforeEach
     void setUp() {
-        board = new Tile[8][8]; // Initializing the board
+        board = new Tile[8][8];
         game = new Game() {
             @Override
             public Tile getTile(int row, int col) {
@@ -48,18 +41,15 @@ class GameTest {
         negativeFromTile = new Tile(7, 2);
         negativeToTile = new Tile(6, 3);
 
-        moves = new ArrayList<>();
         player1 = new Player() {
             @Override
             public void executeMove(Move move) {
 
             }
-
             @Override
             public Game getGame() {
                 return null;
             }
-
             @Override
             public Move chooseMove(Move move) {
                 return null;
@@ -71,12 +61,10 @@ class GameTest {
             public void executeMove(Move move) {
 
             }
-
             @Override
             public Game getGame() {
                 return null;
             }
-
             @Override
             public Move chooseMove(Move move) {
                 return null;
@@ -92,7 +80,6 @@ class GameTest {
         // Validate player1 has been assigned to WHITE and is in the positive direction
         assertEquals(white, player1.getColor());
         assertEquals(1, player1.getDirection());
-
     }
     @Test
     void addPlayer_GameHasOnePlayer() {
@@ -111,7 +98,6 @@ class GameTest {
         assertEquals(-1, player2.getDirection());
     }
 
-    // ** Test if game already has two players, should do nothing ** //
     @Test
     void addPlayer_GameHasTwoPlayers_NoPlayersAdded() {
         // Add player 1
@@ -148,10 +134,9 @@ class GameTest {
         assertNotEquals(white, extraPlayer.getColor());
         assertNotEquals(1, extraPlayer.getDirection());
 
-        // Compare player 1 to player 3, and ensure no extra player has been added
+        // Compare player 2 to player 3, and ensure no extra player has been added
         assertNotEquals(black, extraPlayer.getColor());
         assertNotEquals(-1, extraPlayer.getDirection());
-
     }
 
     @Test
@@ -199,9 +184,6 @@ class GameTest {
         Piece whitePiece = player1.addPiece(game.getTile(2, 3));
         Piece blackPiece = player2.addPiece(game.getTile(7, 2));
 
-        // Set the current tile
-        game.setCurrentTile(positiveFromTile);
-
         // Set the occupant and create a move from tile (2, 3) to (3, 4)
         positiveFromTile.setOccupant(whitePiece);
         Move move = new Move(positiveFromTile, positiveToTile);
@@ -216,33 +198,29 @@ class GameTest {
         // Execute the move
         game.executeMove(move);
 
-        // ** Assert that the fromTile.occupant is null ** //
         assertNull(positiveFromTile.getOccupant());
         assertEquals(whitePiece, positiveToTile.getOccupant());
 
-        // Set the occupant and create a move
+        // Set the occupant and create a move for the opponent
         negativeFromTile.setOccupant(blackPiece);
         Move secondMove = new Move(negativeFromTile, negativeToTile);
 
         // Execute the second move
         game.executeMove(secondMove);
+        assertNull(negativeFromTile.getOccupant());
         assertEquals(blackPiece, negativeToTile.getOccupant());
     }
 
     @Test
     void executeMove_pieceIsKinged() {
-
         // Tile before last row
         Tile currentTile = new Tile(6,1);
         Tile targetTile = new Tile(7, 0);
 
-        // Set the current tile
-        game.setCurrentTile(currentTile);
-
         // Create pieces
         Piece whitePiece = player1.addPiece(game.getTile(6, 1));
 
-        // Set the occupant the tile before the last row and check if it occupies that tile
+        // Set the white piece to occupy the current tile
         currentTile.setOccupant(whitePiece);
         assertTrue(currentTile.isOccupied());
         assertEquals(whitePiece, currentTile.getOccupant());
@@ -271,12 +249,81 @@ class GameTest {
         // Check if piece is now a king
         assertTrue(whitePiece.isKinged());
     }
+    @Test
+    void executeMove_CapturedPiece() {
+        // Create a new tile for piece to move
+        Tile toTile = new Tile(4, 5);
+
+        // Create white piece for player 1 and set piece to occupy that tile
+        Piece whitePiece = player1.addPiece(game.getTile(2, 3));
+        positiveFromTile.setOccupant(whitePiece);
+
+        // Ensure that white piece occupies the positiveFromTile and not the toTile
+        assertFalse(toTile.isOccupied());
+        assertTrue(positiveFromTile.isOccupied());
+        assertEquals(whitePiece, positiveFromTile.getOccupant());
+
+        // Create tile to represent the tile being jumped
+        Tile actualTile = new Tile(3, 4);
+        board[3][4] = actualTile;
+
+        // Create black piece for player 2 and set the piece to occupy the jumped tile
+        Piece blackPiece = player2.addPiece(game.getTile(3, 4));
+        actualTile.setOccupant(blackPiece);
+
+        // Ensure the black piece is occupying jumped tile
+        assertTrue(actualTile.isOccupied());
+        assertEquals(blackPiece, actualTile.getOccupant());
+
+        // Create a move that will jump from tile (2, 3) to (4, 5)
+        Move move = new Move(positiveFromTile, toTile);
+        // Create a jumpTile for testing. Tile is (3, 4)
+        Tile jumpTile = game.jumpedTile(positiveFromTile, toTile);
+
+        // Ensure the jump tile and actual tile matches
+        assertEquals(actualTile, jumpTile);
+
+        // Add the players
+        game.addPlayer(player1);
+        game.addPlayer(player2);
+
+        // Check how many pieces each player has
+        assertEquals(1, player1.getNumPieces());
+        assertEquals(1, player2.getNumPieces());
+
+        // Set the current player
+        game.setCurrentPlayer(player1);
+
+        // Create a captured piece and ensure the black piece matches the captured piece
+        Piece capturedPiece = jumpTile.getOccupant();
+
+        // Ensure that the captured piece is not null
+        assertNotNull(capturedPiece);
+        assertEquals(blackPiece, capturedPiece);
+
+        // Call the execute method
+        game.executeMove(move);
+
+        // Ensure the occupant of the jump tile is null
+        assertNull(jumpTile.getOccupant());
+
+        // Ensure the toTile is occupied by the white piece and
+        // that no piece is occupying the positive from tile
+        assertFalse(positiveFromTile.isOccupied());
+        assertTrue(toTile.isOccupied());
+        assertEquals(whitePiece, toTile.getOccupant());
+
+        // Ensure the black piece was removed from player2
+        assertEquals(1, player1.getNumPieces());
+        assertEquals(0, player2.getNumPieces());
+    }
 
     @Test
     void isLegalMove() {
         // Create a Piece object
         Piece whitePiece = new Piece(player1, positiveFromTile, 1);
         Piece blackPiece = new Piece(player2, negativeFromTile, -1);
+
         // Set the piece on the tile
         positiveFromTile.setOccupant(whitePiece);
         negativeFromTile.setOccupant(blackPiece);
@@ -293,13 +340,15 @@ class GameTest {
         // Create a new move
         Move move2 = new Move(negativeFromTile, negativeToTile);
 
-        // Check if the does not belong to the current player
+        // Ensure the black piece does not the current player
         assertNotEquals(blackPiece.getPlayer(), game.getCurrentPlayer());
+        assertEquals(whitePiece.getPlayer(), game.getCurrentPlayer());
 
-        // Check if it is a legal move
+        // Check if the second move is a legal move
         result = game.isLegalMove(move2);
         assertFalse(result);
     }
+
     @Test
     void isNotLegalMove() {
         // No piece will occupy the positiveFromTile
@@ -332,45 +381,75 @@ class GameTest {
     @Test
     void play() {
         // Create a spy
-        Game testGame = spy(game);
+        Game mockGame = spy(game);
 
-        Player player1Test = mock(Player.class);
-        Player player2Test = mock(Player.class);
+        // Mock the two players
+        Player mockPlayer1 = mock(Player.class);
+        Player mockPlayer2 = mock(Player.class);
 
-        // Add both players to the game
-        testGame.addPlayer(player1Test);
-        testGame.addPlayer(player2Test);
+        Piece whitePiece = mockPlayer1.addPiece(positiveFromTile);
+        Piece blackPiece = mockPlayer2.addPiece(negativeFromTile);
+
+        positiveFromTile.setOccupant(whitePiece);
+        negativeFromTile.setOccupant(blackPiece);
+
+        // Verify that mock players has added a piece to their list
+        verify(mockPlayer1).addPiece(positiveFromTile);
+        verify(mockPlayer2).addPiece(negativeFromTile);
+
+        // Verify how many times the method was called
+        verify(mockPlayer1, times(1)).addPiece(any());
+        verify(mockPlayer2, times(1)).addPiece(any());
+
+        // Add the mock players to the game
+        mockGame.addPlayer(mockPlayer1);
+        mockGame.addPlayer(mockPlayer2);
+
+        when(mockGame.endGame()).thenReturn(false).thenReturn(true);
+        assertFalse(mockGame.endGame());
 
         // Set player1 to current player
-        testGame.setCurrentPlayer(player1Test);
-        assertEquals(player1Test, testGame.getCurrentPlayer());
+        mockGame.setCurrentPlayer(mockPlayer1);
+        assertEquals(mockPlayer1, mockGame.getCurrentPlayer());
 
         // Move
         Move move1 = new Move(positiveFromTile, positiveToTile);
         Move move2 = new Move(negativeFromTile, negativeToTile);
 
-        // Stubbing player moves for testing
-        when(player1Test.chooseMove(null)).thenReturn(move1);
-        when(player2Test.chooseMove(null)).thenReturn(move2);
-        //doReturn(move1).when(player1Test).chooseMove(null);
+        // Stubbing player 1 for move
+        when(mockPlayer1.chooseMove(null)).thenReturn(move1);
+        // Ensure that player 1 move matches the actual move
+        Move player1ActualMove = mockPlayer1.chooseMove(null);
+        assertEquals(move1, player1ActualMove);
 
-        // Simulate a legal move being chosen by returning true if move is legal
-        doReturn(true).when(testGame).isLegalMove(any());
+        // player 1 legal moves
+        when(mockGame.isLegalMove(move1)).thenReturn(true);
+        boolean resultPlayer1 = mockGame.isLegalMove(move1);
+        assertTrue(resultPlayer1);
 
-        // Execute move for player 1
-        player1Test.executeMove(move1);
+        // Stubbing player 2 for move
+        when(mockPlayer2.chooseMove(null)).thenReturn(move2);
+        Move player2ActualMove = mockPlayer2.chooseMove(null);
+        assertEquals(move2, player2ActualMove);
 
-        // Switch current player and execute player 2 move
-        testGame.switchTurns();
-        player2Test.executeMove(move2);
+        // player 2 legal moves
+        when(mockGame.isLegalMove(move2)).thenReturn(true);
+        boolean resultPlayer2 = mockGame.isLegalMove(player2ActualMove);
+        assertTrue(resultPlayer2);
 
         // Call the play method
-        testGame.play();
+        mockGame.play();
 
-        // Check if the current player is player 2
-        assertEquals(player2Test, testGame.getCurrentPlayer());
+        // Insight on the methods the mocked objects are interacting with
+        System.out.println("Interaction: " + mockingDetails(mockPlayer1).getInvocations());
+        System.out.println("\nInteraction: " + mockingDetails(mockPlayer2).getInvocations());
 
-        //verify(player1Test, atLeastOnce()).chooseMove(null);
+        // Verify that both players at least made one move
+        verify(mockPlayer1, atLeastOnce()).chooseMove(null);
+        verify(mockPlayer2, atLeastOnce()).chooseMove(null);
+
+        // Ensure the game has ended
+        assertTrue(mockGame.endGame());
     }
 
     @Test
@@ -392,7 +471,7 @@ class GameTest {
         // Start the game
         mockGame.startGame();
 
-        assertNotNull(mockGame.getCurrentPlayer()); // Ensure that both players are not null
+        assertNotNull(mockGame.getCurrentPlayer()); // Ensure that current players is not null
         assertEquals(mockPlayer1, mockGame.getCurrentPlayer()); // Ensure player 1 is the current player
         assertTrue(mockGame.isGameStarted()); // Ensure the game flag is set to true, indicating the game has started
 
@@ -410,20 +489,17 @@ class GameTest {
         int row = 2, col = 3;
 
         // Create the tiles
-        Tile currentTile = new Tile(1, 2);
-        Tile targetTile = new Tile(3,4);
-
-        // Set up the current tile
-        game.setCurrentTile(currentTile);
+        Tile fromTile = new Tile(1, 2);
+        Tile toTile = new Tile(3,4);
 
         // Actual jumped tile
         Tile actualTile = new Tile(row, col);
         board[row][col] = actualTile;
 
         // Call the jumpedTile method
-        Tile jumpTile = game.jumpedTile(targetTile, board);
+        Tile jumpTile = game.jumpedTile(fromTile, toTile); //
 
-        // Ensure the jump tile matches the actual tile
+        // Ensure both tiles are not null and the jump tile matches the actual tile
         assertNotNull(actualTile);
         assertNotNull(jumpTile);
         assertEquals(actualTile, jumpTile);
@@ -434,11 +510,8 @@ class GameTest {
         int row = 2, col = 3;
 
         // Create the tiles
-        Tile currentTile = new Tile(1, 2);
-        Tile targetTile = new Tile(3,4);
-
-        // Set up the current tile
-        game.setCurrentTile(currentTile);
+        Tile fromTile = new Tile(1, 2);
+        Tile toTile = new Tile(3,4);
 
         // Actual jumped tile
         Tile actualTile = new Tile(row, col);
@@ -448,13 +521,15 @@ class GameTest {
         actualTile.setOccupant(blackPiece);
 
         // Create white piece for testing purposes
-        Piece whitePiece = new Piece(player1, actualTile, 1);
+        Piece whitePiece = new Piece(player1, fromTile, 1);
+        fromTile.setOccupant(whitePiece);
 
         board[row][col] = actualTile; // Assigned the tile to the board
         assertTrue(actualTile.isOccupied()); // Ensure that the tile is occupied by a piece
+        assertEquals(blackPiece, actualTile.getOccupant()); // Ensure black piece is occupying tile
 
         // Call the jumpedTile method
-        Tile jumpTile = game.jumpedTile(targetTile, board);
+        Tile jumpTile = game.jumpedTile(fromTile, toTile);
 
         // Ensure the jump tile matches the actual tile
         assertEquals(actualTile, jumpTile);
@@ -471,7 +546,6 @@ class GameTest {
         game.addPlayer(player2);
 
         // Set player1 as current player
-        //currentPlayer = player1;
         game.setCurrentPlayer(player1);
 
         // Validate player1 is the current player
@@ -495,7 +569,7 @@ class GameTest {
         // Set player2 as current player
         game.setCurrentPlayer(player2);
 
-        // Validate player1 is the current player
+        // Validate player2 is the current player
         assertEquals(player2, game.getCurrentPlayer());
 
         // Switch players
