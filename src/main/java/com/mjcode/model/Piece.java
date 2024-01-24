@@ -14,8 +14,6 @@ public class Piece {
      * @param currentTile The tile field
      * @param direction The direction field
      */
-    // Change the tile object to differentiate from the object in canMoveTo().
-    // Change it to....Tile currentTile
     public Piece(Player player, Tile currentTile, int direction) {
         this.player = player;
         this.currentTile = currentTile;
@@ -118,6 +116,10 @@ public class Piece {
      */
     public void king() {
         this.isKing = true;
+    }
+
+    public Tile getCurrentTile() {
+        return currentTile;
     }
 
 }
