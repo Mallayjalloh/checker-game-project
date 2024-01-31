@@ -5,16 +5,25 @@ import com.mjcode.model.Piece;
 import javax.swing.*;
 import java.awt.*;
 
-public class CheckersGUI {
+
+public class CheckersGUI extends JComponent{
 
     // Declare fields
     private final int tileSize; // The size of each tile on the board
     private final int diameter; // Represent the diameter of a checkers piece
-    private PieceComponent[][] pieceComponents; // Represent the game state using a 2D array of PieceComponent objects
+
+    private final PieceComponent[][] pieceComponents;
 
     public CheckersGUI() {
         this.tileSize = 60;
         this.diameter = 50;
+        pieceComponents = new PieceComponent[8][8];
+    }
+
+    // **** Add 2nd constructor ****
+    public CheckersGUI(int tileSize, int diameter) {
+        this.tileSize = tileSize; // tile size = 60;
+        this.diameter = diameter; // diameter = 50;
         pieceComponents = new PieceComponent[8][8];
     }
 
@@ -32,19 +41,21 @@ public class CheckersGUI {
         int row = piece.getCurrentTile().getRow();
         int column = piece.getCurrentTile().getColumn();
 
-        // Calculate the x and y coordinates based on the row and column
-        int x = column * tileSize;
-        int y = row * tileSize;
+        // Calculate the x and y coordinates based on the tile size
+        int x = column * getTileSize();
+        int y = row * getTileSize();
 
         // Set the location of the PieceComponent on the board
+        //pieceComponent.setBounds(x, y, diameter, diameter);
         pieceComponent.setBounds(x, y, diameter, diameter);
 
         // Add the PieceComponent to the CheckersGUI
-        pieceComponent.add(pieceComponent);
+        // **** change to pieceComponents ***
+        add(pieceComponent);
 
         // Ensure the GUI updates
-        pieceComponent.revalidate();
-        pieceComponent.repaint();
+        revalidate();
+        repaint();
     }
 
     /**
@@ -62,22 +73,23 @@ public class CheckersGUI {
         // Get the PieceComponent at the specified location
         PieceComponent movingPiece = getPieceComponentAt(fromRow, fromColumn);
 
-        // Calculate the difference between the toRow and the fromRow
+        // Calculate the difference between the (toRow) and the (fromRow)
         int rowDiff = toRow - fromRow;
         int colDiff = toColumn - fromColumn;
 
         // Check if there is a PieceComponent at the  specified location
         if (movingPiece != null) {
             // Move the PieceComponent to the new location and remove it from the old location
-            pieceComponents[toRow][toColumn] = movingPiece;
             pieceComponents[fromRow][fromColumn] = null;
+            pieceComponents[toRow][toColumn] = movingPiece;
+
 
             // Calculate the x and y coordinates for the new location
-            int x = toColumn * tileSize;
-            int y = toRow * tileSize;
+            int x = toColumn * getTileSize();
+            int y = toRow * getTileSize();
 
             // Set the location of the PieceComponent to the new location
-            movingPiece.setBounds(x, y, movingPiece.getPreferredSize().width, movingPiece.getPreferredSize().height);
+            movingPiece.setBounds(x, y, diameter, diameter);
 
             // If the move is two spaces away, remove the PieceComponent at the intermediary space
             if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 2) {
@@ -85,17 +97,15 @@ public class CheckersGUI {
                 int jumpedCol = fromColumn + (colDiff / 2);
                 PieceComponent jumpedPiece = getPieceComponentAt(jumpedRow, jumpedCol);
 
-                // Check if there is a PieceComponent at the intermediary space
-                if (jumpedPiece != null) {
-                    pieceComponents[jumpedRow][jumpedCol] = null;
-                    //jumpedPiece.remove(jumpedPiece);
-                }
+                // Assigned jumpedPiece PieceComponent to the intermediary space
+                pieceComponents[jumpedRow][jumpedCol] = null;
+                //remove(jumpedPiece);
             }
-
             // Ensure the GUI updates
-            movingPiece.revalidate();
-            movingPiece.repaint();
-
+            /*movingPiece.revalidate();
+            movingPiece.repaint();*/
+            revalidate();
+            repaint();
         }
     }
 
@@ -115,7 +125,8 @@ public class CheckersGUI {
      * @return The PieceComponent at the specified location,
      * or null if no PieceComponent is present.
      */
-    private PieceComponent getPieceComponentAt(int row, int column) {
+    public PieceComponent getPieceComponentAt(int row, int column) {
         return pieceComponents[row][column];
     }
+
 }
