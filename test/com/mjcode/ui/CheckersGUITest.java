@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.awt.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CheckersGUITest {
     PieceComponent[][] pieceComponents;
@@ -19,12 +20,14 @@ class CheckersGUITest {
     int positiveDirection;
     Piece piece;
 
+
     @BeforeEach
     void setUp() {
-        pieceComponents = new PieceComponent[8][8];
         tileSize = 60;
         diameter = 50;
         white = Color.WHITE;
+
+        pieceComponents = new PieceComponent[8][8];
         checkersGUI = new CheckersGUI(tileSize, diameter) {
             @Override
             public PieceComponent getPieceComponentAt(int row, int column) {
@@ -77,7 +80,7 @@ class CheckersGUITest {
         assertNotNull(addedPieceComponent);
         assertEquals(color, addedPieceComponent.color);
         assertEquals(50, addedPieceComponent.diameter);
-        assertEquals(piece.isKinged(), addedPieceComponent.kinged);
+        assertFalse(addedPieceComponent.kinged);
     }
 
     @Test
@@ -99,7 +102,39 @@ class CheckersGUITest {
         pieceComponents[fromRow][fromColumn] = movingPiece;
 
         // Ensure movingPiece is not null
-        assertNotNull(movingPiece);
+        assertNotNull(checkersGUI.getPieceComponentAt(fromRow, fromColumn));
+        // Ensure movingPiece and piece on the board are equal
+        assertEquals(checkersGUI.getPieceComponentAt(fromRow, fromColumn), movingPiece);
+
+        // Call the method
+        checkersGUI.movePiece(fromRow, fromColumn, toRow, toColumn);
+
+        assertEquals(checkersGUI.getPieceComponentAt(fromRow, fromColumn), movingPiece);
+
+        assertNull(checkersGUI.getPieceComponentAt(fromRow, fromColumn));
+        //assertNotNull(checkersGUI.getPieceComponentAt(toRow, toColumn));
+    }
+
+    /*@Test
+    void movePiecePartTwo() {
+        // Get the row and column
+        // piece will move from (2, 3) to (3, 4)
+        int fromRow = fromTile.getRow(); // 2
+        int fromColumn = fromTile.getColumn(); // 3
+        int toRow = 3;
+        int toColumn = 4;
+
+        // Set the color of the player
+        player.setColor(white);
+        Color color = player.getColor();
+
+        // Create a movingPiece for testing
+        PieceComponent movingPiece = new PieceComponent(color, diameter, piece.isKinged());
+        // Assign movingPiece to the specified location on the board
+        checkersGUI.pieceComponents[fromRow][fromColumn] = movingPiece;
+
+        // Ensure movingPiece is not null
+        assertNotNull(checkersGUI.pieceComponents[fromRow][fromColumn]);
         // Ensure movingPiece and piece on the board are equal
         assertEquals(checkersGUI.getPieceComponentAt(fromRow, fromColumn), movingPiece);
 
@@ -107,8 +142,8 @@ class CheckersGUITest {
         checkersGUI.movePiece(fromRow, fromColumn, toRow, toColumn);
 
         assertNull(checkersGUI.getPieceComponentAt(fromRow, fromColumn));
-        //assertNotNull(checkersGUI.getPieceComponentAt(toRow, toColumn));
-    }
+        assertNotNull(checkersGUI.getPieceComponentAt(toRow, toColumn));
+    }*/
 
     @Test
     void getTileSize() {
@@ -147,7 +182,6 @@ class CheckersGUITest {
         // Create an instance of the actualPieceComponent
         PieceComponent actualPieceComponent = checkersGUI.getPieceComponentAt(row, column);
 
-        assertNotNull(expectedPieceComponent);
         assertNotNull(actualPieceComponent);
         assertEquals(expectedPieceComponent, actualPieceComponent);
     }

@@ -64,10 +64,11 @@ public class CheckersGUI extends JComponent{
      * from the old location and add it to the new location). If (fromRow, fromCol)
      * is two spaces away from (toRow, toCol), removes the PieceComponent on the
      * intermediary space. If no Piece is present at (fromRow, fromCol), does nothing.
-     * @param fromRow The fromRow on the board
+     *
+     * @param fromRow    The fromRow on the board
      * @param fromColumn The fromColumn on the board
-     * @param toRow The toRow on the board
-     * @param toColumn The toColumn on the board
+     * @param toRow      The toRow on the board
+     * @param toColumn   The toColumn on the board
      */
     public void movePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
         // Get the PieceComponent at the specified location
@@ -83,10 +84,9 @@ public class CheckersGUI extends JComponent{
             pieceComponents[fromRow][fromColumn] = null;
             pieceComponents[toRow][toColumn] = movingPiece;
 
-
             // Calculate the x and y coordinates for the new location
-            int x = toColumn * getTileSize();
-            int y = toRow * getTileSize();
+            int x = toColumn * tileSize;
+            int y = toRow * tileSize;
 
             // Set the location of the PieceComponent to the new location
             movingPiece.setBounds(x, y, diameter, diameter);
@@ -99,11 +99,10 @@ public class CheckersGUI extends JComponent{
 
                 // Assigned jumpedPiece PieceComponent to the intermediary space
                 pieceComponents[jumpedRow][jumpedCol] = null;
-                //remove(jumpedPiece);
+                remove(jumpedPiece);
             }
+
             // Ensure the GUI updates
-            /*movingPiece.revalidate();
-            movingPiece.repaint();*/
             revalidate();
             repaint();
         }
@@ -128,5 +127,4 @@ public class CheckersGUI extends JComponent{
     public PieceComponent getPieceComponentAt(int row, int column) {
         return pieceComponents[row][column];
     }
-
 }
