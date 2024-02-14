@@ -11,7 +11,6 @@ public class CheckersGUI extends JComponent{
     // Declare fields
     private final int tileSize; // The size of each tile on the board
     private final int diameter; // Represent the diameter of a checkers piece
-
     private final PieceComponent[][] pieceComponents;
 
     public CheckersGUI() {
@@ -46,11 +45,9 @@ public class CheckersGUI extends JComponent{
         int y = row * getTileSize();
 
         // Set the location of the PieceComponent on the board
-        //pieceComponent.setBounds(x, y, diameter, diameter);
         pieceComponent.setBounds(x, y, diameter, diameter);
 
         // Add the PieceComponent to the CheckersGUI
-        // **** change to pieceComponents ***
         add(pieceComponent);
 
         // Ensure the GUI updates
@@ -95,11 +92,9 @@ public class CheckersGUI extends JComponent{
             if (Math.abs(rowDiff) == 2 && Math.abs(colDiff) == 2) {
                 int jumpedRow = fromRow + (rowDiff / 2);
                 int jumpedCol = fromColumn + (colDiff / 2);
-                PieceComponent jumpedPiece = getPieceComponentAt(jumpedRow, jumpedCol);
 
                 // Assigned jumpedPiece PieceComponent to the intermediary space
                 pieceComponents[jumpedRow][jumpedCol] = null;
-                remove(jumpedPiece);
             }
 
             // Ensure the GUI updates
@@ -126,5 +121,15 @@ public class CheckersGUI extends JComponent{
      */
     public PieceComponent getPieceComponentAt(int row, int column) {
         return pieceComponents[row][column];
+    }
+
+    /**
+     * Sets the PieceComponent at the specified row and column on the board
+     * @param row The row on the board
+     * @param column The column on the board
+     * @param pieceComponent The PieceComponent that is stored at the specified location
+     */
+    public void setPieceComponents(int row, int column, PieceComponent pieceComponent) {
+        pieceComponents[row][column] = pieceComponent;
     }
 }
